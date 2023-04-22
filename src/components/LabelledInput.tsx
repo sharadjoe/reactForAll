@@ -8,7 +8,7 @@ export default function LabelledInput(props: {
   onChangeCB: (value: string, id: number) => void;
 }) {
   return (
-    <>
+    <div className="py-2">
       <label htmlFor={props.label}>{props.label}</label>
       <div className="flex">
         <input
@@ -26,6 +26,6 @@ export default function LabelledInput(props: {
           Remove Field
         </button>
       </div>
-    </>
+    </div>
   );
 }

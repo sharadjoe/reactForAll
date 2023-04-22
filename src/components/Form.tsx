@@ -15,7 +15,7 @@ export default function Form(props: { closeFormCB: () => void }) {
         id: Number(new Date()),
         label: newField,
         fieldType: "text",
-        value: newField
+        value: ""
       }
     ]);
 
