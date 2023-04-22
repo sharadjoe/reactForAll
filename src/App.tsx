@@ -4,10 +4,10 @@ import Header from "./Header";
 // import "./App.css";
 
 const formFields = [
-  { id: 1, label: "First Name" },
-  { id: 2, label: "Last Name" },
-  { id: 3, label: "Email" },
-  { id: 4, label: "Date" }
+  { id: 1, label: "First Name", fieldType: "text" },
+  { id: 2, label: "Last Name", fieldType: "text" },
+  { id: 3, label: "Email", fieldType: "email" },
+  { id: 4, label: "Date", fieldType: "date" }
 ];
 
 function App() {
@@ -21,12 +21,12 @@ function App() {
             <React.Fragment key={field.id}>
               <label htmlFor={field.label}>{field.label}</label>
               <input
-                type={field.label === "Date" ? "date" : "text"}
+                type={field.fieldType}
                 placeholder={
-                  field.label === "Data" ? "dd/mm/yyyy" : field.label
+                  field.fieldType === "date" ? "dd/mm/yyyy" : field.label
                 }
                 className="border-2 border-gray-200 rounded-lg p-2 m-2 w-full"
-                id={field.label}
+                id={field.fieldType}
               />
             </React.Fragment>
           ))}
