@@ -1,7 +1,19 @@
 import React, { useState } from "react";
 import LabelledInput from "./LabelledInput";
 
-const formFields: any[] = [];
+interface formField {
+  id: number;
+  label: string;
+  fieldType: string;
+  value: string;
+}
+
+const formFields: formField[] = [
+  { id: 1, label: "First Name", fieldType: "text", value: "" },
+  { id: 2, label: "Last Name", fieldType: "text", value: "" },
+  { id: 3, label: "Date of Birth", fieldType: "date", value: "" },
+  { id: 4, label: "Email", fieldType: "email", value: "" }
+];
 
 export default function Form(props: { closeFormCB: () => void }) {
   const [state, setState] = useState(formFields);
