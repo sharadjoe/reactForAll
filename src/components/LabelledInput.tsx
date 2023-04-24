@@ -4,6 +4,7 @@ export default function LabelledInput(props: {
   id: number;
   label: string;
   fieldType: string;
+  value: string;
   removeFieldCB: (id: number) => void;
   onChangeCB: (value: string, id: number) => void;
 }) {
@@ -16,6 +17,7 @@ export default function LabelledInput(props: {
           placeholder={props.fieldType === "date" ? "dd/mm/yyyy" : props.label}
           className="border-2 border-gray-200 rounded-lg p-2 m-2 w-full"
           id={props.label}
+          value={props.value}
           onChange={(e) => props.onChangeCB(e.target.value, props.id)}
         />
 

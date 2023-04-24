@@ -1,19 +1,25 @@
 import React from "react";
 
 import logo from "../logo.svg";
+import ListForms from "./ListForms";
 
-export default function Home(props: { openFormCB: () => void }) {
+export default function Home(props: {
+  openFormCB: () => void;
+  selectFormCB: (id: number) => void;
+}) {
   return (
     <div className="flex flex flex-col justify-center">
-      <img className="h-48" src={logo} />
-      <div className="items-center flex justify-center h-48">
-        <p className="">Welcome to homepage </p>
+      <div className="flex flex-col w-full py-4">
+        <ListForms
+          openFormCB={props.openFormCB}
+          selectFormCB={props.selectFormCB}
+        />
       </div>
       <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
+        className="bg-gray-500 hover:bg-gray-700 text-white font-bol px-4 py-2 rounded-lg"
         onClick={props.openFormCB}
       >
-        Open Form
+        Create New Form
       </button>
     </div>
   );

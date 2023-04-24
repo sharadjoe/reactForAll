@@ -8,6 +8,8 @@ import Form from "./components/Form";
 function App() {
   const [state, setState] = useState("HOME");
 
+  const [selectedForm, setSelectedForm] = useState<number | null>(null);
+
   const closeForm = () => {
     setState("HOME");
   };
@@ -16,15 +18,19 @@ function App() {
     setState("FORM");
   };
 
+  const selectForm = (id: number) => {
+    setSelectedForm(id);
+  };
+
   return (
     <AppContainer>
       <div className="flex h-screen bg-gray-100 items-center justify-center w-full">
         <div className="p-4 mx-auto bg-white shadow-lg rounded-xl w-full">
-          <Header title={"Hello World"} />
+          <Header title={"List Home"} />
           {state === "HOME" ? (
-            <Home openFormCB={openForm} />
+            <Home openFormCB={openForm} selectFormCB={selectForm} />
           ) : (
-            <Form closeFormCB={closeForm} />
+            <Form closeFormCB={closeForm} selectedForm={selectedForm} />
           )}
         </div>
       </div>
