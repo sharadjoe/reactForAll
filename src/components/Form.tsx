@@ -3,12 +3,19 @@ import LabelledInput from "./LabelledInput";
 import { title } from "process";
 
 import { formData, formField, getLocalForms, saveLocalForms } from "./common";
+import { navigate, useNavigate } from "raviger";
 
 const initialFields: formField[] = [
-  { id: 1, label: "First Name", fieldType: "text", value: "" },
-  { id: 2, label: "Last Name", fieldType: "text", value: "" },
-  { id: 3, label: "Date of Birth", fieldType: "date", value: "" },
-  { id: 4, label: "Email", fieldType: "email", value: "" }
+  { id: 1, label: "First Name", fieldType: "text", value: "", selected: true },
+  { id: 2, label: "Last Name", fieldType: "text", value: "", selected: false },
+  {
+    id: 3,
+    label: "Date of Birth",
+    fieldType: "date",
+    value: "",
+    selected: false
+  },
+  { id: 4, label: "Email", fieldType: "email", value: "", selected: false }
 ];
 
 const initialState: (selectedForm: number | null) => formData = (
@@ -36,15 +43,16 @@ const initialState: (selectedForm: number | null) => formData = (
   return newForm;
 };
 
-export default function Form(props: {
-  closeFormCB: () => void;
-  selectedForm: number | null;
-}) {
+export default function Form(props: { selectedForm: number | null }) {
   const [state, setState] = useState(() => initialState(props.selectedForm));
 
   const [newField, setNewField] = useState("");
 
   const titleRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    state.id !== props.selectedForm && navigate(`/form/${state.id}`);
+  }, [state.id, props.selectedForm]);
 
   useEffect(() => {
     const oldTitle = document.title;
@@ -85,7 +93,8 @@ export default function Form(props: {
           id: Number(new Date()),
           label: newField,
           fieldType: "text",
-          value: ""
+          value: "",
+          selected: false
         }
       ]
     });
@@ -161,7 +170,9 @@ export default function Form(props: {
       <div className="flex gap-2 py-4">
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
-          onClick={props.closeFormCB}
+          onClick={() => {
+            navigate("/");
+          }}
         >
           Close Form
         </button>
@@ -175,7 +186,7 @@ export default function Form(props: {
           className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
           onClick={(_) => {
             saveFormData(state);
-            props.closeFormCB();
+            navigate("/");
           }}
         >
           Save

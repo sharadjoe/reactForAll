@@ -14,6 +14,21 @@ export interface formField {
   value: string;
 }
 
+export interface formField {
+  id: number;
+  label: string;
+  fieldType: string;
+  value: string;
+  selected:boolean
+}
+
+
+
+
+
+
+
+
 
 
 export const getLocalForms: () => formData[] = () => {
@@ -22,6 +37,26 @@ export const getLocalForms: () => formData[] = () => {
 };
 
 
+export const getLocalFormsById = (formId: number) => {
+  const savedFormJSON = localStorage.getItem("savedForms");
+  const parsedSavedFormJSON: formData[] = savedFormJSON ? JSON.parse(savedFormJSON) : [];
+  return parsedSavedFormJSON.find((form: formData) => form.id === formId);
+};
+
+
 export const saveLocalForms = (localForm: formData[]) => {
   localStorage.setItem("savedForms", JSON.stringify(localForm));
 };
+
+
+
+export const localFormReplaceById = ( formId: number, newForm:any) => {
+  const savedFormJSON = localStorage.getItem("savedForms")
+  const localForm =  savedFormJSON ? JSON.parse(savedFormJSON) : [];
+  const index = localForm.findIndex((form: formData) => form.id === formId);
+  localForm[index] = newForm;
+
+  saveLocalForms(localForm)
+}
+
+
