@@ -12,13 +12,6 @@ export default function PreviewForm(props: { formId: number }) {
     return getLocalFormsById(props.formId);
   });
   const [index, setIndex] = useState<number>(0);
-  const [field, setField] = useState<formField>();
-
-  useEffect(() => {
-    let findField = form?.formFields.find((field, ind) => ind === index);
-
-    setField(findField);
-  }, [form, index]);
 
   useEffect(() => {
     const formById = getLocalFormsById(props.formId);

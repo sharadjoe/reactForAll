@@ -46,7 +46,10 @@ const initialState: (selectedForm: number | null) => formData = (
 export default function Form(props: { selectedForm: number | null }) {
   const [state, setState] = useState(() => initialState(props.selectedForm));
 
-  const [newField, setNewField] = useState("");
+  const [newField, setNewField] = useState({
+    label: "",
+    fieldType: "text"
+  });
 
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -91,15 +94,18 @@ export default function Form(props: { selectedForm: number | null }) {
         ...state.formFields,
         {
           id: Number(new Date()),
-          label: newField,
-          fieldType: "text",
+          label: newField.label,
+          fieldType: newField.fieldType,
           value: "",
           selected: false
         }
       ]
     });
 
-    setNewField("");
+    setNewField({
+      label: "",
+      fieldType: "text"
+    });
   };
 
   const removeField = (id: number) => {
@@ -154,12 +160,32 @@ export default function Form(props: { selectedForm: number | null }) {
       <div className="flex gap-2 py-4">
         <input
           type="text"
-          value={newField}
+          value={newField.label}
           className="border-2 border-gray-200 rounded-lg p-2 my-1 flex-1"
           onChange={(e) => {
-            setNewField(e.target.value);
+            setNewField({ ...newField, label: e.target.value });
           }}
         />
+        <select
+          onChange={(e) => {
+            setNewField({ ...newField, fieldType: e.target.value });
+          }}
+        >
+          {[
+            { label: "Text", value: "text" },
+            { label: "Date", value: "date" },
+            { label: "Email", value: "email" }
+          ].map((option) => (
+            <option
+              key={option.value}
+              selected={newField.fieldType === option.value}
+              value={option.value}
+            >
+              {option.label}
+            </option>
+          ))}
+        </select>
+
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
           onClick={addField}
