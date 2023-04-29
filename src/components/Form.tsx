@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
-import { title } from "process";
 
 import { formData, formField, getLocalForms, saveLocalForms } from "./common";
-import { navigate, useNavigate } from "raviger";
+import { navigate } from "raviger";
 
 const initialFields: formField[] = [
   { id: 1, label: "First Name", fieldType: "text", value: "", selected: true },

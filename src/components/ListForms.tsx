@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { getLocalForms } from "./common";
-import { Link, navigate, useQueryParams } from "raviger";
+import { Link, useQueryParams } from "raviger";
 
 export default function ListForms() {
   const [forms, setForms] = useState(() => getLocalForms());

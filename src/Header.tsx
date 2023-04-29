@@ -1,8 +1,5 @@
-import React from "react";
-
 import logo from "./logo.svg";
-import { title } from "process";
-import { ActiveLink, navigate } from "raviger";
+import { ActiveLink } from "raviger";
 
 export default function Header(props: { title: string }) {
   return (
