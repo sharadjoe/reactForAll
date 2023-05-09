@@ -27,31 +27,9 @@ export default function PreviewForm(props: { formId: number }) {
   };
 
   const next = () => {
-    setForm((prev) => {
-      if (prev) {
-        const newForm = { ...prev };
-        newForm.formFields[index].selected = false;
-        newForm.formFields[index + 1].selected = true;
-        return newForm;
-      }
-
-      return prev;
-    });
-
     setIndex((prev) => prev + 1);
   };
   const back = () => {
-    setForm((prev) => {
-      if (prev) {
-        const newForm = { ...prev };
-        newForm.formFields[index].selected = false;
-        newForm.formFields[index - 1].selected = true;
-        return newForm;
-      }
-
-      return prev;
-    });
-
     setIndex((prev) => prev - 1);
   };
 
@@ -64,9 +42,9 @@ export default function PreviewForm(props: { formId: number }) {
               <h1>{form.title}</h1>
             </div>
 
-            {form.formFields.map((field, ind) => (
+            {form.formFields.map((field, fieldIndex) => (
               <>
-                {field.selected === true && (
+                {fieldIndex === index && (
                   <div className="py-4 flex flex-col">
                     <label>{field.label}</label>
                     <input

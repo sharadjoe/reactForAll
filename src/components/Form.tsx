@@ -5,16 +5,15 @@ import { formData, formField, getLocalForms, saveLocalForms } from "./common";
 import { navigate } from "raviger";
 
 const initialFields: formField[] = [
-  { id: 1, label: "First Name", fieldType: "text", value: "", selected: true },
-  { id: 2, label: "Last Name", fieldType: "text", value: "", selected: false },
+  { id: 1, label: "First Name", fieldType: "text", value: "" },
+  { id: 2, label: "Last Name", fieldType: "text", value: "" },
   {
     id: 3,
     label: "Date of Birth",
     fieldType: "date",
-    value: "",
-    selected: false
+    value: ""
   },
-  { id: 4, label: "Email", fieldType: "email", value: "", selected: false }
+  { id: 4, label: "Email", fieldType: "email", value: "" }
 ];
 
 const initialState: (selectedForm: number | null) => formData = (
@@ -95,8 +94,7 @@ export default function Form(props: { selectedForm: number | null }) {
           id: Number(new Date()),
           label: newField.label,
           fieldType: newField.fieldType,
-          value: "",
-          selected: false
+          value: ""
         }
       ]
     });

@@ -7,19 +7,13 @@ export interface formData {
   formFields: formField[];
 }
 
-export interface formField {
-  id: number;
-  label: string;
-  fieldType: string;
-  value: string;
-}
+
 
 export interface formField {
   id: number;
   label: string;
   fieldType: string;
   value: string;
-  selected:boolean
 }
 
 
