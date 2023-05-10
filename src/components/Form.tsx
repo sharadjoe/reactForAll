@@ -1,13 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
-import { title } from "process";
 
 import { formData, formField, getLocalForms, saveLocalForms } from "./common";
+import { navigate } from "raviger";
 
 const initialFields: formField[] = [
   { id: 1, label: "First Name", fieldType: "text", value: "" },
   { id: 2, label: "Last Name", fieldType: "text", value: "" },
-  { id: 3, label: "Date of Birth", fieldType: "date", value: "" },
+  {
+    id: 3,
+    label: "Date of Birth",
+    fieldType: "date",
+    value: ""
+  },
   { id: 4, label: "Email", fieldType: "email", value: "" }
 ];
 
@@ -36,15 +41,19 @@ const initialState: (selectedForm: number | null) => formData = (
   return newForm;
 };
 
-export default function Form(props: {
-  closeFormCB: () => void;
-  selectedForm: number | null;
-}) {
+export default function Form(props: { selectedForm: number | null }) {
   const [state, setState] = useState(() => initialState(props.selectedForm));
 
-  const [newField, setNewField] = useState("");
+  const [newField, setNewField] = useState({
+    label: "",
+    fieldType: "text"
+  });
 
   const titleRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    state.id !== props.selectedForm && navigate(`/form/${state.id}`);
+  }, [state.id, props.selectedForm]);
 
   useEffect(() => {
     const oldTitle = document.title;
@@ -83,14 +92,17 @@ export default function Form(props: {
         ...state.formFields,
         {
           id: Number(new Date()),
-          label: newField,
-          fieldType: "text",
+          label: newField.label,
+          fieldType: newField.fieldType,
           value: ""
         }
       ]
     });
 
-    setNewField("");
+    setNewField({
+      label: "",
+      fieldType: "text"
+    });
   };
 
   const removeField = (id: number) => {
@@ -145,12 +157,32 @@ export default function Form(props: {
       <div className="flex gap-2 py-4">
         <input
           type="text"
-          value={newField}
+          value={newField.label}
           className="border-2 border-gray-200 rounded-lg p-2 my-1 flex-1"
           onChange={(e) => {
-            setNewField(e.target.value);
+            setNewField({ ...newField, label: e.target.value });
           }}
         />
+        <select
+          onChange={(e) => {
+            setNewField({ ...newField, fieldType: e.target.value });
+          }}
+        >
+          {[
+            { label: "Text", value: "text" },
+            { label: "Date", value: "date" },
+            { label: "Email", value: "email" }
+          ].map((option) => (
+            <option
+              key={option.value}
+              selected={newField.fieldType === option.value}
+              value={option.value}
+            >
+              {option.label}
+            </option>
+          ))}
+        </select>
+
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
           onClick={addField}
@@ -161,7 +193,9 @@ export default function Form(props: {
       <div className="flex gap-2 py-4">
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
-          onClick={props.closeFormCB}
+          onClick={() => {
+            navigate("/");
+          }}
         >
           Close Form
         </button>
@@ -175,7 +209,7 @@ export default function Form(props: {
           className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
           onClick={(_) => {
             saveFormData(state);
-            props.closeFormCB();
+            navigate("/");
           }}
         >
           Save
