@@ -12,7 +12,7 @@ export default function ListForms() {
   const deleteForm = (id: number) => {
     const newForms = forms.filter((form) => form.id !== id);
     setForms(newForms);
-    localStorage.setItem("forms", JSON.stringify(newForms));
+    localStorage.setItem("savedForms", JSON.stringify(newForms));
   };
   return (
     <div className="">

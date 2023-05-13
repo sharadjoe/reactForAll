@@ -6,7 +6,6 @@ export default function LabelledInput(props: {
   fieldType: string;
   value: string;
   removeFieldCB: (id: number) => void;
-  onChangeCB: (value: string, id: number) => void;
 }) {
   return (
     <div className="py-2">
