@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useReducer } from "react";
 import LabelledInput from "./LabelledInput";
 
 import { formData, formField, getLocalForms, saveLocalForms } from "./common";
@@ -65,10 +65,128 @@ const initialState: (selectedForm: number | null) => formData = (
   return newForm;
 };
 
-export default function Form(props: { selectedForm: number | null }) {
-  const [state, setState] = useState(() => initialState(props.selectedForm));
+type ChangeText = {
+  type: "change_text";
+  value: string;
+  fieldType: string;
+};
 
-  const [newField, setNewField] = useState({
+type ClearText = {
+  type: "clear_text";
+};
+
+type NewFiledAction = ChangeText | ClearText;
+
+const newFieldReducer = (
+  state: {
+    label: string;
+    fieldType: string;
+  },
+  action: NewFiledAction
+) => {
+  console.log("fsadfdsafdsa", action);
+  switch (action.type) {
+    case "change_text":
+      return {
+        ...state,
+        label: action.value
+      };
+    case "clear_text":
+      return {
+        ...state,
+        label: ""
+      };
+  }
+};
+
+export default function Form(props: { selectedForm: number | null }) {
+  // const [state, setState] = useState(() => initialState(props.selectedForm));
+
+  type FormActions =
+    | {
+        type: "add";
+        payload: {
+          newField: {
+            label: string;
+            fieldType: string;
+          };
+        };
+      }
+    | { type: "remove"; id: number };
+
+  type FormStateActions =
+    | { type: "SET_INITIAL_STATE"; payload: formData }
+    | { type: "SET_STATE"; payload: formData }
+    | { type: "SET_TITLE"; payload: string }
+    | FormActions;
+
+  const formStateReducer = (
+    state: formData,
+    action: FormStateActions
+  ): formData => {
+    switch (action.type) {
+      case "SET_INITIAL_STATE":
+        return action.payload;
+      case "SET_STATE":
+        return action.payload;
+      case "SET_TITLE":
+        return { ...state, title: action.payload };
+      case "add":
+        const newField = action.payload.newField;
+        if (newField.fieldType === "multiselect") {
+          return {
+            ...state,
+            formFields: [
+              ...state.formFields,
+              {
+                kind: "multiselect",
+                id: Number(new Date()),
+                label: newField.label,
+                value: [],
+                options: []
+              }
+            ]
+          };
+        } else if (newField.fieldType === "text") {
+          return {
+            ...state,
+            formFields: [
+              ...state.formFields,
+              {
+                kind: "text",
+                id: Number(new Date()),
+                label: newField.label,
+                fieldType: "text",
+                value: ""
+              }
+            ]
+          };
+        }
+        break;
+      case "remove":
+        return {
+          ...state,
+          formFields: state.formFields.filter((field) => field.id !== action.id)
+        };
+
+      default:
+        return state;
+    }
+
+    return state;
+  };
+
+  const [state, dispatchState] = useReducer(
+    formStateReducer,
+    initialState(props.selectedForm)
+  );
+
+  // const [newField, setNewField] = useState({
+  //   label: "",
+  //   fieldType: "text"
+  // });
+
+  const [newField, dispatch] = useReducer(newFieldReducer, {
     label: "",
     fieldType: "text"
   });
@@ -87,12 +205,18 @@ export default function Form(props: { selectedForm: number | null }) {
 
   const titleRef = useRef<HTMLInputElement>(null);
 
+  // type FormActions = AddField | RemoveField;
+
   useEffect(() => {
     state.id !== props.selectedForm && navigate(`/form/${state.id}`);
   }, [state.id, props.selectedForm]);
 
   useEffect(() => {
-    setState(initialState(props.selectedForm ? props.selectedForm : state.id));
+    console.log("Fsadfsdafs");
+    dispatchState({
+      type: "SET_INITIAL_STATE",
+      payload: initialState(props.selectedForm ? props.selectedForm : state.id)
+    });
   }, [showDropDownModal.display]);
 
   useEffect(() => {
@@ -125,68 +249,46 @@ export default function Form(props: { selectedForm: number | null }) {
     saveLocalForms(updatedLocalForms);
   };
 
-  const addField = () => {
-    let payload = {};
-    if (newField.fieldType === "multiselect") {
-      payload = {
-        kind: "multiselect",
-        id: Number(new Date()),
-        label: newField.label,
-        value: [],
-        options: []
-      };
-    } else {
-      payload = {
-        kind: "text",
-        id: Number(new Date()),
-        label: newField.label,
-        fieldType: "text",
-        value: ""
-      };
-    }
-    setState({
-      ...state,
-      formFields: [
-        ...state.formFields,
-        {
-          kind: "text",
-          id: Number(new Date()),
-          label: newField.label,
-          fieldType: "text",
-          value: ""
-        }
-      ]
-    });
-
-    setNewField({
-      label: "",
-      fieldType: "text"
-    });
-  };
-
-  const removeField = (id: number) => {
-    setState({
-      ...state,
-      formFields: state.formFields.filter((field) => field.id !== id)
-    });
-  };
+  // const dispatchAction = (action: FormActions) => {
+  //   setState(reducer(state, action));
+  // };
 
   const onChangeCB = (value: any, id: number, kind: string) => {
-    setState({
-      ...state,
-      formFields: state.formFields.map((field) => {
-        if (field.id === id) {
-          return {
-            ...field,
-            value: value
-          };
-        }
-        return field;
-      })
+    dispatchState({
+      type: "SET_STATE",
+      payload: {
+        ...state,
+        formFields: state.formFields.map((field) => {
+          if (field.id === id) {
+            return {
+              ...field,
+              value: value
+            };
+          }
+          return field;
+        })
+      }
     });
+
+    // setState({
+    //   ...state,
+    //   formFields: state.formFields.map((field) => {
+    //     if (field.id === id) {
+    //       return {
+    //         ...field,
+    //         value: value
+    //       };
+    //     }
+    //     return field;
+    //   })
+    // });
   };
 
   const clearForm = () => {};
+
+  const onTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatchState({ type: "SET_TITLE", payload: e.target.value });
+  };
 
   return (
     <div>
@@ -195,9 +297,7 @@ export default function Form(props: { selectedForm: number | null }) {
           type="text"
           value={state.title}
           className="border-2 border-gray-200 rounded-lg p-2 my-1 flex-1"
-          onChange={(e) => {
-            setState({ ...state, title: e.target.value });
-          }}
+          onChange={onTitleChange}
           ref={titleRef}
         />
       </div>
@@ -212,7 +312,12 @@ export default function Form(props: { selectedForm: number | null }) {
                 id={field.id}
                 label={field.label}
                 fieldType={field.fieldType}
-                removeFieldCB={removeField}
+                removeFieldCB={() => {
+                  dispatchState({
+                    type: "remove",
+                    id: field.id
+                  });
+                }}
               />
             );
           case "dropdown":
@@ -314,12 +419,21 @@ export default function Form(props: { selectedForm: number | null }) {
           value={newField.label}
           className="border-2 border-gray-200 rounded-lg p-2 my-1 flex-1"
           onChange={(e) => {
-            setNewField({ ...newField, label: e.target.value });
+            dispatch({
+              ...newField,
+              value: e.target.value,
+              type: "change_text"
+            });
           }}
         />
         <select
           onChange={(e) => {
-            setNewField({ ...newField, fieldType: e.target.value });
+            dispatch({
+              ...newField,
+              fieldType: e.target.value,
+              type: "change_text",
+              value: ""
+            });
           }}
         >
           {[
@@ -338,7 +452,9 @@ export default function Form(props: { selectedForm: number | null }) {
 
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
-          onClick={addField}
+          onClick={(_) => {
+            dispatchState({ type: "add", payload: { newField } });
+          }}
         >
           Add Field
         </button>

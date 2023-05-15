@@ -1,37 +1,71 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { formField, getLocalFormsById, localFormReplaceById } from "./common";
-import { render } from "@testing-library/react";
+
+interface FormState {
+  form: ReturnType<typeof getLocalFormsById> | null;
+  index: number;
+}
+
+interface Action {
+  type: string;
+  payload?: any;
+}
+
+function formReducer(state: FormState, action: Action): FormState {
+  switch (action.type) {
+    case "SET_FORM":
+      return {
+        ...state,
+        form: action.payload
+      };
+    case "SET_INDEX":
+      return {
+        ...state,
+        index: action.payload
+      };
+    case "UPDATE_FIELD_VALUE":
+      if (state.form) {
+        const newForm = { ...state.form };
+        newForm.formFields[state.index].value = action.payload;
+        return {
+          ...state,
+          form: newForm
+        };
+      }
+      return state;
+    default:
+      throw new Error(`Unsupported action type: ${action.type}`);
+  }
+}
 
 export default function PreviewForm(props: { formId: number }) {
-  const [form, setForm] = useState(() => {
-    return getLocalFormsById(props.formId);
+  const [state, dispatch] = useReducer(formReducer, {
+    form: getLocalFormsById(props.formId),
+    index: 0
   });
-  const [index, setIndex] = useState<number>(0);
 
   useEffect(() => {
     const formById = getLocalFormsById(props.formId);
-    setForm(formById);
-    setIndex(0);
+    dispatch({ type: "SET_FORM", payload: formById });
+    dispatch({ type: "SET_INDEX", payload: 0 });
   }, [props.formId]);
 
-  const handleChange = (event: { target: HTMLInputElement }) => {
-    setForm((data) => {
-      if (data) {
-        const newForm = { ...data };
-        newForm.formFields[index].value = event.target.value;
-        return newForm;
-      }
-      return data;
-    });
+  useEffect(() => {
+    if (state.form) {
+      localFormReplaceById(props.formId, state.form);
+    }
+  }, [state.form, props.formId]);
 
-    localFormReplaceById(props.formId, form);
+  const handleChange = (event: { target: HTMLInputElement }) => {
+    dispatch({ type: "UPDATE_FIELD_VALUE", payload: event.target.value });
   };
 
   const next = () => {
-    setIndex((prev) => prev + 1);
+    dispatch({ type: "SET_INDEX", payload: state.index + 1 });
   };
+
   const back = () => {
-    setIndex((prev) => prev - 1);
+    dispatch({ type: "SET_INDEX", payload: state.index - 1 });
   };
 
   const renderField = (field: formField) => {
@@ -58,13 +92,9 @@ export default function PreviewForm(props: { formId: number }) {
 
             <select
               onChange={(e) => {
-                setForm((data) => {
-                  if (data) {
-                    const newForm = { ...data };
-                    newForm.formFields[index].value = e.target.value;
-                    return newForm;
-                  }
-                  return data;
+                dispatch({
+                  type: "UPDATE_FIELD_VALUE",
+                  payload: e.target.value
                 });
               }}
               value={field.value}
@@ -91,13 +121,9 @@ export default function PreviewForm(props: { formId: number }) {
                   checked={option === field.value}
                   className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
                   onClick={(e) => {
-                    setForm((data) => {
-                      if (data) {
-                        const newForm = { ...data };
-                        newForm.formFields[index].value = field.value;
-                        return newForm;
-                      }
-                      return data;
+                    dispatch({
+                      type: "UPDATE_FIELD_VALUE",
+                      payload: field.value
                     });
                   }}
                 />
@@ -116,35 +142,35 @@ export default function PreviewForm(props: { formId: number }) {
 
   return (
     <>
-      {form ? (
+      {state.form ? (
         <>
           <div className="flex flex-col justify-center">
             <div>
-              <h1>{form.title}</h1>
+              <h1>{state.form.title}</h1>
             </div>
 
-            {form.formFields.map((field, fieldIndex) => (
-              <>{fieldIndex === index && renderField(field)}</>
+            {state.form.formFields.map((field, fieldIndex) => (
+              <>{fieldIndex === state.index && renderField(field)}</>
             ))}
           </div>
 
           <div className="flex flex-row gap-4">
-            {index !== 0 && (
+            {state.index !== 0 && (
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
                 onClick={() => {
-                  back();
+                  dispatch({ type: "SET_INDEX", payload: state.index - 1 });
                 }}
               >
                 Back
               </button>
             )}
 
-            {index !== (form?.formFields?.length || 0) - 1 && (
+            {state.index !== (state.form?.formFields?.length || 0) - 1 && (
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
                 onClick={() => {
-                  next();
+                  dispatch({ type: "SET_INDEX", payload: state.index + 1 });
                 }}
               >
                 Next
