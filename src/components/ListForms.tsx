@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { getLocalForms } from "./common";
-import { Link, useQueryParams } from "raviger";
+import { Link, navigate, useQueryParams } from "raviger";
 
 export default function ListForms() {
   const [forms, setForms] = useState(() => getLocalForms());
@@ -14,16 +14,18 @@ export default function ListForms() {
     setForms(newForms);
     localStorage.setItem("forms", JSON.stringify(newForms));
   };
+
   return (
-    <div className="">
+    <div className="bg-gray-50 p-4">
       <form
         onSubmit={(e) => {
           e.preventDefault();
 
           setQuery({ search: searchString });
         }}
+        className="flex flex-row space-x-2"
       >
-        <label>Search</label>
+        <label className="my-auto">Search</label>
         <input
           type="text"
           name="search"
@@ -42,19 +44,29 @@ export default function ListForms() {
         )
         .map((form) => (
           <div className="py-4">
-            <div className="py-2 text-white rounded-lg p-2 bg-blue-500 hover:bg-blue-700 w-3/4 flex flex-row items-center">
-              <div>{form.title}</div>
-              <div className="px-4">
+            <div className="py-2 text-white rounded-lg p-2 bg-blue-500 hover:bg-blue-700 w-3/4 flex flex-row items-center justify-between space-x-4">
+              <div className="text-lg font-semibold">{form.title}</div>
+              <div>
                 <Link
                   href={`/form/${form.id}`}
-                  className="bg-gray-500 hover:bg-gray-700 text-white font-bol px-4 py-2 rounded-lg"
+                  className="bg-gray-500 hover:bg-gray-700 text-white font-bold px-4 py-2 rounded-lg"
                 >
                   Open Form
                 </Link>
               </div>
-              <div className="px-4">
+              <div>
                 <button
-                  className="bg-gray-500 hover:bg-gray-700 text-white font-bol px-4 py-2 rounded-lg"
+                  className="bg-gray-500 hover:bg-gray-700 text-white font-bold px-4 py-2 rounded-lg"
+                  onClick={() => {
+                    navigate(`/preview/${form.id}`);
+                  }}
+                >
+                  Preview
+                </button>
+              </div>
+              <div>
+                <button
+                  className="bg-red-500 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg"
                   onClick={() => {
                     deleteForm(form.id);
                   }}

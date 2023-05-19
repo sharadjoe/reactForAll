@@ -49,6 +49,8 @@ export default function Form(props: { selectedForm: number | null }) {
     fieldType: "text"
   });
 
+  const [editLabelId, setEditLabelId] = useState<number | null>(null);
+
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -73,6 +75,27 @@ export default function Form(props: { selectedForm: number | null }) {
       clearTimeout(timeout);
     };
   }, [state]);
+
+  const toggleEditLabel = (id: number | null) => {
+    setEditLabelId(id);
+  };
+
+  const saveLabel = (label: string, id: number) => {
+    setState({
+      ...state,
+      formFields: state.formFields.map((field) => {
+        if (field.id === id) {
+          return {
+            ...field,
+            label
+          };
+        }
+        return field;
+      })
+    });
+
+    toggleEditLabel(null);
+  };
 
   const saveFormData = (data: formData) => {
     const localForms = getLocalForms();
@@ -152,6 +175,9 @@ export default function Form(props: { selectedForm: number | null }) {
           fieldType={field.fieldType}
           removeFieldCB={removeField}
           onChangeCB={onChangeCB}
+          isEditing={editLabelId === field.id}
+          onToggleEdit={() => toggleEditLabel(field.id)}
+          onSaveLabel={saveLabel}
         />
       ))}
       <div className="flex gap-2 py-4">
