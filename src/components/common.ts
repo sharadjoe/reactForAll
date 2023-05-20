@@ -43,19 +43,15 @@ type textAreaField = {
   value:string
 }
 
-export type multiSelectField = {
-  kind:"multiselect"
-  id:number
-  label:string
-  options:{
-    label:string
-    value:string
+type MultiSelectField = {
+  kind: "multiselect";
+  id: number;
+  label: string;
+  value: string[];
+  options: { label: string; value: string }[];
+};
 
-  }[]
-  value:string[]
-}
-
-export type formField  = TextField | DropDownField | RadioField | textAreaField | multiSelectField
+export type formField  = TextField | DropDownField | RadioField | textAreaField | MultiSelectField
 
 export const getLocalForms: () => formData[] = () => {
   const savedFormJSON = localStorage.getItem("savedForms");

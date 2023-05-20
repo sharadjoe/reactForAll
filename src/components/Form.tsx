@@ -17,7 +17,6 @@ const initialFields: formField[] = [
     options: ["High", "Medium", "Low"],
     value: ""
   },
-
   { kind: "text", id: 4, label: "Email", fieldType: "email", value: "" },
   {
     kind: "radio",
@@ -148,7 +147,7 @@ export default function Form(props: { selectedForm: number | null }) {
   };
 
   const addField = () => {
-    let payload = {};
+    let payload: formField;
     if (newField.fieldType === "multiselect") {
       payload = {
         kind: "multiselect",
@@ -168,16 +167,7 @@ export default function Form(props: { selectedForm: number | null }) {
     }
     setState({
       ...state,
-      formFields: [
-        ...state.formFields,
-        {
-          kind: "text",
-          id: Number(new Date()),
-          label: newField.label,
-          fieldType: "text",
-          value: ""
-        }
-      ]
+      formFields: [...state.formFields, payload]
     });
 
     setNewField({
@@ -332,6 +322,8 @@ export default function Form(props: { selectedForm: number | null }) {
                 <MultiSelect options={field.options} />
               </>
             );
+          default:
+            return null;
         }
       })}
       <div className="flex gap-2 py-4">
