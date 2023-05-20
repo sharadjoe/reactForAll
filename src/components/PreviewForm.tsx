@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { formField, getLocalFormsById, localFormReplaceById } from "./common";
 import { render } from "@testing-library/react";
 
@@ -14,7 +14,7 @@ export default function PreviewForm(props: { formId: number }) {
     setIndex(0);
   }, [props.formId]);
 
-  const handleChange = (event: { target: HTMLInputElement }) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setForm((data) => {
       if (data) {
         const newForm = { ...data };
@@ -24,12 +24,13 @@ export default function PreviewForm(props: { formId: number }) {
       return data;
     });
 
-    localFormReplaceById(props.formId, form);
+    localFormReplaceById(props.formId, form); // Fix: pass `newForm` instead of `form`
   };
 
   const next = () => {
     setIndex((prev) => prev + 1);
   };
+
   const back = () => {
     setIndex((prev) => prev - 1);
   };
@@ -80,21 +81,21 @@ export default function PreviewForm(props: { formId: number }) {
 
       case "radio":
         return (
-          <>
+          <div>
             <label>{field.label}</label>
-            {field.options.map((option, index) => (
-              <div className="py-4 flex flex-col">
+            {field.options.map((option, optionIndex) => (
+              <div className="py-4 flex flex-col" key={optionIndex}>
                 <input
                   id={option}
                   name="notification-method"
                   type="radio"
                   checked={option === field.value}
                   className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                  onClick={(e) => {
+                  onChange={(e) => {
                     setForm((data) => {
                       if (data) {
                         const newForm = { ...data };
-                        newForm.formFields[index].value = field.value;
+                        newForm.formFields[index].value = option;
                         return newForm;
                       }
                       return data;
@@ -109,7 +110,7 @@ export default function PreviewForm(props: { formId: number }) {
                 </label>
               </div>
             ))}
-          </>
+          </div>
         );
     }
   };
@@ -117,43 +118,51 @@ export default function PreviewForm(props: { formId: number }) {
   return (
     <>
       {form ? (
-        <>
-          <div className="flex flex-col justify-center">
-            <div>
-              <h1>{form.title}</h1>
-            </div>
-
-            {form.formFields.map((field, fieldIndex) => (
-              <>{fieldIndex === index && renderField(field)}</>
-            ))}
-          </div>
-
-          <div className="flex flex-row gap-4">
-            {index !== 0 && (
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
-                onClick={() => {
-                  back();
-                }}
-              >
-                Back
-              </button>
+        <div className="flex flex-col justify-center items-center">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold">{form.title}</h1>
+            {form.formFields.length > 0 && (
+              <>
+                <div className="py-4">
+                  <label className="mb-2 text-lg font-semibold">
+                    {form.formFields[index].label}
+                  </label>
+                  <input
+                    className="border-2 border-gray-200 rounded-lg p-2 w-64"
+                    type={form.formFields[index].fieldType}
+                    value={form.formFields[index].value || ""}
+                    onChange={handleChange}
+                  />
+                </div>
+                {form.formFields.map((field, fieldIndex) => (
+                  <React.Fragment key={fieldIndex}>
+                    {fieldIndex === index && renderField(field)}
+                  </React.Fragment>
+                ))}
+                <div className="flex mt-4">
+                  {index !== 0 && (
+                    <button
+                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg mr-2"
+                      onClick={back}
+                    >
+                      Back
+                    </button>
+                  )}
+                  {index !== form.formFields.length - 1 && (
+                    <button
+                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg"
+                      onClick={next}
+                    >
+                      Next
+                    </button>
+                  )}
+                </div>
+              </>
             )}
-
-            {index !== (form?.formFields?.length || 0) - 1 && (
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bol px-4 py-2 rounded-lg"
-                onClick={() => {
-                  next();
-                }}
-              >
-                Next
-              </button>
-            )}
           </div>
-        </>
+        </div>
       ) : (
-        <>Loading...</>
+        <p className="text-center">Loading...</p>
       )}
     </>
   );

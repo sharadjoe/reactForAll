@@ -84,6 +84,7 @@ export default function Form(props: { selectedForm: number | null }) {
     id: null,
     stateId: null
   });
+  const [editLabelId, setEditLabelId] = useState<number | null>(null);
 
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -113,6 +114,27 @@ export default function Form(props: { selectedForm: number | null }) {
       clearTimeout(timeout);
     };
   }, [state]);
+
+  const toggleEditLabel = (id: number | null) => {
+    setEditLabelId(id);
+  };
+
+  const saveLabel = (label: string, id: number) => {
+    setState({
+      ...state,
+      formFields: state.formFields.map((field) => {
+        if (field.id === id) {
+          return {
+            ...field,
+            label
+          };
+        }
+        return field;
+      })
+    });
+
+    toggleEditLabel(null);
+  };
 
   const saveFormData = (data: formData) => {
     const localForms = getLocalForms();
@@ -213,6 +235,10 @@ export default function Form(props: { selectedForm: number | null }) {
                 label={field.label}
                 fieldType={field.fieldType}
                 removeFieldCB={removeField}
+                onChangeCB={onChangeCB}
+                isEditing={editLabelId === field.id}
+                onToggleEdit={() => toggleEditLabel(field.id)}
+                onSaveLabel={saveLabel}
               />
             );
           case "dropdown":
